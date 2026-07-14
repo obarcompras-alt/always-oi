@@ -153,7 +153,9 @@ export function ContagemView() {
                   <Plus className="h-5 w-5" />
                 </Button>
               </div>
+              <DeltaRow onApply={delta => adjust(item, delta)} />
             </Card>
+
           );
         })}
       </div>
