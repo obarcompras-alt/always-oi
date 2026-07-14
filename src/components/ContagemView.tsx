@@ -153,7 +153,9 @@ export function ContagemView() {
                   <Plus className="h-5 w-5" />
                 </Button>
               </div>
+              <DeltaRow onApply={delta => adjust(item, delta)} />
             </Card>
+
           );
         })}
       </div>
@@ -182,3 +184,34 @@ function NumberInput({ value, onCommit }: { value: number; onCommit: (v: number)
     />
   );
 }
+
+function DeltaRow({ onApply }: { onApply: (delta: number) => void }) {
+  const [val, setVal] = useState("");
+  function apply(sign: 1 | -1) {
+    const n = parseInt(val, 10);
+    if (Number.isNaN(n) || n <= 0) return;
+    onApply(sign * n);
+    setVal("");
+  }
+  return (
+    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/40">
+      <span className="text-xs text-muted-foreground shrink-0">Achei/Tirei:</span>
+      <Input
+        type="number"
+        inputMode="numeric"
+        placeholder="0"
+        value={val}
+        onFocus={e => e.target.select()}
+        onChange={e => setVal(e.target.value)}
+        className="h-10 text-center flex-1"
+      />
+      <Button size="sm" variant="outline" className="h-10 px-3" onClick={() => apply(-1)}>
+        <Minus className="h-4 w-4" />
+      </Button>
+      <Button size="sm" className="h-10 px-3" onClick={() => apply(1)}>
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
+
