@@ -1,25 +1,15 @@
-import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth, useIsAdmin } from "@/hooks/useAuth";
-import { Beer, ListChecks, ShoppingCart, Settings, LogOut } from "lucide-react";
+import { Beer, ListChecks, ShoppingCart, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const { isAdmin } = useIsAdmin(user?.id);
-  const navigate = useNavigate();
   const { pathname } = useLocation();
-
-  async function logout() {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
 
   const tabs = [
     { to: "/", label: "Contagem", icon: ListChecks },
     { to: "/compras", label: "Compras", icon: ShoppingCart },
-    ...(isAdmin ? [{ to: "/gerenciar", label: "Gerenciar", icon: Settings }] : []),
+    { to: "/gerenciar", label: "Gerenciar", icon: Settings },
   ];
 
   return (
@@ -32,9 +22,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <span className="font-bold">Contagem Bar</span>
           </div>
-          <button onClick={logout} className="text-muted-foreground hover:text-foreground p-2 -mr-2" aria-label="Sair">
-            <LogOut className="h-5 w-5" />
-          </button>
         </div>
       </header>
       <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-4 pb-24">

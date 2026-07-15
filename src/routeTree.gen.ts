@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as GerenciarRouteImport } from './routes/gerenciar'
 import { Route as ComprasRouteImport } from './routes/compras'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
 const GerenciarRoute = GerenciarRouteImport.update({
@@ -24,11 +23,6 @@ const ComprasRoute = ComprasRouteImport.update({
   path: '/compras',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,34 +31,30 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/compras' | '/gerenciar'
+  fullPaths: '/' | '/compras' | '/gerenciar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/compras' | '/gerenciar'
-  id: '__root__' | '/' | '/auth' | '/compras' | '/gerenciar'
+  to: '/' | '/compras' | '/gerenciar'
+  id: '__root__' | '/' | '/compras' | '/gerenciar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRoute
   ComprasRoute: typeof ComprasRoute
   GerenciarRoute: typeof GerenciarRoute
 }
@@ -85,13 +75,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComprasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -104,7 +87,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRoute,
   ComprasRoute: ComprasRoute,
   GerenciarRoute: GerenciarRoute,
 }
