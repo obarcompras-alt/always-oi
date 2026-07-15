@@ -70,19 +70,28 @@ export function ComprasView() {
   }, [items, suppliers]);
 
   const totalFardos = grupos.reduce((a, g) => a + g.lines.reduce((x, l) => x + l.fardos, 0), 0);
+  const totalCusto = grupos.reduce((a, g) => a + g.lines.reduce((x, l) => x + l.custo, 0), 0);
 
   function formatLine(l: Line) {
-    return `${l.fardos} fardo${l.fardos > 1 ? "s" : ""} de ${l.item.nome}`;
+    const base = `${l.fardos} fardo${l.fardos > 1 ? "s" : ""} de ${l.item.nome}`;
+    return l.custo > 0 ? `${base} — ~${brl(l.custo)}` : base;
   }
 
   function copyGroup(g: { supplier: Supplier; lines: Line[] }) {
-    const text = `*${g.supplier.nome}*\n` + g.lines.map(l => `• ${formatLine(l)}`).join("\n");
+    const subtotal = g.lines.reduce((x, l) => x + l.custo, 0);
+    const header = subtotal > 0 ? `*${g.supplier.nome}* (~${brl(subtotal)})` : `*${g.supplier.nome}*`;
+    const text = header + "\n" + g.lines.map(l => `• ${formatLine(l)}`).join("\n");
     navigator.clipboard.writeText(text);
     toast.success(`Lista de ${g.supplier.nome} copiada`);
   }
   function copyAll() {
-    const text = grupos.map(g => `*${g.supplier.nome}*\n` + g.lines.map(l => `• ${formatLine(l)}`).join("\n")).join("\n\n");
-    navigator.clipboard.writeText(text);
+    const body = grupos.map(g => {
+      const subtotal = g.lines.reduce((x, l) => x + l.custo, 0);
+      const header = subtotal > 0 ? `*${g.supplier.nome}* (~${brl(subtotal)})` : `*${g.supplier.nome}*`;
+      return header + "\n" + g.lines.map(l => `• ${formatLine(l)}`).join("\n");
+    }).join("\n\n");
+    const footer = totalCusto > 0 ? `\n\n*Total estimado:* ${brl(totalCusto)}` : "";
+    navigator.clipboard.writeText(body + footer);
     toast.success("Lista completa copiada");
   }
 
@@ -90,14 +99,18 @@ export function ComprasView() {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Card className="p-3">
           <div className="text-xs text-muted-foreground">Fornecedores</div>
           <div className="text-2xl font-bold">{grupos.length}</div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs text-muted-foreground">Total fardos</div>
+          <div className="text-xs text-muted-foreground">Fardos</div>
           <div className="text-2xl font-bold">{totalFardos}</div>
+        </Card>
+        <Card className="p-3">
+          <div className="text-xs text-muted-foreground">Custo ~</div>
+          <div className="text-2xl font-bold">{brl(totalCusto)}</div>
         </Card>
       </div>
 
@@ -115,14 +128,17 @@ export function ComprasView() {
       )}
 
       <div className="space-y-3">
-        {grupos.map(g => (
+        {grupos.map(g => {
+          const subtotal = g.lines.reduce((x, l) => x + l.custo, 0);
+          return (
           <Card key={g.supplier.id} className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className={cn("border-0", supplierBadgeClass(g.supplier.cor))}>
                   {g.supplier.nome}
                 </Badge>
                 <span className="text-xs text-muted-foreground">{g.lines.reduce((a,l)=>a+l.fardos,0)} fardos</span>
+                {subtotal > 0 && <span className="text-xs font-semibold text-primary">~{brl(subtotal)}</span>}
               </div>
               <Button size="sm" variant="ghost" onClick={() => copyGroup(g)}>
                 <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
@@ -130,14 +146,18 @@ export function ComprasView() {
             </div>
             <ul className="space-y-2">
               {g.lines.map(l => (
-                <li key={l.item.id} className="flex items-center justify-between text-sm">
+                <li key={l.item.id} className="flex items-center justify-between text-sm gap-2">
                   <span className="min-w-0 truncate pr-2">{l.item.nome}</span>
-                  <span className="font-bold text-primary shrink-0">{l.fardos} fardo{l.fardos>1?"s":""}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {l.custo > 0 && <span className="text-xs text-muted-foreground">~{brl(l.custo)}</span>}
+                    <span className="font-bold text-primary">{l.fardos} fardo{l.fardos>1?"s":""}</span>
+                  </div>
                 </li>
               ))}
             </ul>
           </Card>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
