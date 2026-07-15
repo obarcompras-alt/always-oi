@@ -1,5 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useAuth } from "@/hooks/useAuth";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { ContagemView } from "@/components/ContagemView";
 
@@ -8,9 +7,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { user, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/auth" />;
   return (
     <AppShell>
       <ContagemView />
