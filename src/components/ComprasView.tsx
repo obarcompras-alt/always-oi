@@ -52,7 +52,8 @@ export function ComprasView() {
       const falta = Math.max(0, item.estoque_minimo - item.contagem_atual);
       if (falta <= 0) continue;
       const fardos = Math.ceil(falta / Math.max(1, item.unidades_por_fardo));
-      const line: Line = { item, unidades: falta, fardos };
+      const custo = fardos * Number(item.preco_fardo || 0);
+      const line: Line = { item, unidades: falta, fardos, custo };
       if (item.supplier_id) {
         const arr = bySup.get(item.supplier_id) ?? [];
         arr.push(line);
