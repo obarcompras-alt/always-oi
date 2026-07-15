@@ -16,7 +16,10 @@ interface Line {
   item: Item;
   unidades: number;
   fardos: number;
+  custo: number;
 }
+
+const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function ComprasView() {
   const [items, setItems] = useState<Item[]>([]);
