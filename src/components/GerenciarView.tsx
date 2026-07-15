@@ -80,6 +80,7 @@ function ItensAdmin() {
                     {sup && <Badge variant="outline" className={cn("border-0", supplierBadgeClass(sup.cor))}>{sup.nome}</Badge>}
                     <span>mín {i.estoque_minimo}</span>
                     <span>fardo {i.unidades_por_fardo}</span>
+                    {i.preco_fardo > 0 && <span>R$ {Number(i.preco_fardo).toFixed(2)}/fardo</span>}
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
