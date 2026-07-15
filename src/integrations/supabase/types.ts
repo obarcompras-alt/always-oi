@@ -21,6 +21,7 @@ export type Database = {
           estoque_minimo: number
           id: string
           nome: string
+          preco_fardo: number
           supplier_id: string | null
           unidades_por_fardo: number
           updated_at: string
@@ -32,6 +33,7 @@ export type Database = {
           estoque_minimo?: number
           id?: string
           nome: string
+          preco_fardo?: number
           supplier_id?: string | null
           unidades_por_fardo?: number
           updated_at?: string
@@ -43,6 +45,7 @@ export type Database = {
           estoque_minimo?: number
           id?: string
           nome?: string
+          preco_fardo?: number
           supplier_id?: string | null
           unidades_por_fardo?: number
           updated_at?: string
