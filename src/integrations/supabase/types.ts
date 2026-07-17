@@ -14,38 +14,76 @@ export type Database = {
   }
   public: {
     Tables: {
+      contagens: {
+        Row: {
+          area: string
+          contador_nome: string | null
+          fardos: number
+          id: string
+          item_id: string
+          tipo: string
+          unidades: number
+          updated_at: string
+        }
+        Insert: {
+          area: string
+          contador_nome?: string | null
+          fardos?: number
+          id?: string
+          item_id: string
+          tipo: string
+          unidades?: number
+          updated_at?: string
+        }
+        Update: {
+          area?: string
+          contador_nome?: string | null
+          fardos?: number
+          id?: string
+          item_id?: string
+          tipo?: string
+          unidades?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contagens_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
-          contagem_atual: number
           created_at: string
           estoque_minimo: number
           id: string
           nome: string
-          preco_fardo: number
+          preco_unidade: number
           supplier_id: string | null
           unidades_por_fardo: number
           updated_at: string
           updated_by: string | null
         }
         Insert: {
-          contagem_atual?: number
           created_at?: string
           estoque_minimo?: number
           id?: string
           nome: string
-          preco_fardo?: number
+          preco_unidade?: number
           supplier_id?: string | null
           unidades_por_fardo?: number
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          contagem_atual?: number
           created_at?: string
           estoque_minimo?: number
           id?: string
           nome?: string
-          preco_fardo?: number
+          preco_unidade?: number
           supplier_id?: string | null
           unidades_por_fardo?: number
           updated_at?: string
