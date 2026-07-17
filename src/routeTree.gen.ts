@@ -10,18 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as GerenciarRouteImport } from './routes/gerenciar'
-import { Route as ContagemRouteImport } from './routes/contagem'
 import { Route as ComprasRouteImport } from './routes/compras'
 import { Route as IndexRouteImport } from './routes/index'
 
 const GerenciarRoute = GerenciarRouteImport.update({
   id: '/gerenciar',
   path: '/gerenciar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContagemRoute = ContagemRouteImport.update({
-  id: '/contagem',
-  path: '/contagem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComprasRoute = ComprasRouteImport.update({
@@ -38,34 +32,30 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compras': typeof ComprasRoute
-  '/contagem': typeof ContagemRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compras': typeof ComprasRoute
-  '/contagem': typeof ContagemRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/compras': typeof ComprasRoute
-  '/contagem': typeof ContagemRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compras' | '/contagem' | '/gerenciar'
+  fullPaths: '/' | '/compras' | '/gerenciar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compras' | '/contagem' | '/gerenciar'
-  id: '__root__' | '/' | '/compras' | '/contagem' | '/gerenciar'
+  to: '/' | '/compras' | '/gerenciar'
+  id: '__root__' | '/' | '/compras' | '/gerenciar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ComprasRoute: typeof ComprasRoute
-  ContagemRoute: typeof ContagemRoute
   GerenciarRoute: typeof GerenciarRoute
 }
 
@@ -76,13 +66,6 @@ declare module '@tanstack/react-router' {
       path: '/gerenciar'
       fullPath: '/gerenciar'
       preLoaderRoute: typeof GerenciarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contagem': {
-      id: '/contagem'
-      path: '/contagem'
-      fullPath: '/contagem'
-      preLoaderRoute: typeof ContagemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compras': {
@@ -105,7 +88,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComprasRoute: ComprasRoute,
-  ContagemRoute: ContagemRoute,
   GerenciarRoute: GerenciarRoute,
 }
 export const routeTree = rootRouteImport
