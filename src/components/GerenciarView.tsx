@@ -80,7 +80,6 @@ function ItensAdmin() {
                     {sup && <Badge variant="outline" className={cn("border-0", supplierBadgeClass(sup.cor))}>{sup.nome}</Badge>}
                     <span>mín {i.estoque_minimo}</span>
                     <span>fardo {i.unidades_por_fardo}</span>
-                    {i.preco_fardo > 0 && <span>R$ {Number(i.preco_fardo).toFixed(2)}/fardo</span>}
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
@@ -118,7 +117,6 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
   const [minimo, setMinimo] = useState(existing?.estoque_minimo ?? 0);
   const [fardo, setFardo] = useState(existing?.unidades_por_fardo ?? 1);
   const [contagem, setContagem] = useState(existing?.contagem_atual ?? 0);
-  const [preco, setPreco] = useState<string>(existing?.preco_fardo != null ? String(existing.preco_fardo) : "0");
 
   useEffect(() => {
     setNome(existing?.nome ?? "");
@@ -126,7 +124,6 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
     setMinimo(existing?.estoque_minimo ?? 0);
     setFardo(existing?.unidades_por_fardo ?? 1);
     setContagem(existing?.contagem_atual ?? 0);
-    setPreco(existing?.preco_fardo != null ? String(existing.preco_fardo) : "0");
   }, [existing]);
 
   async function save(e: React.FormEvent) {
@@ -137,7 +134,6 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
       estoque_minimo: minimo,
       unidades_por_fardo: Math.max(1, fardo),
       contagem_atual: contagem,
-      preco_fardo: Math.max(0, parseFloat(preco.replace(",", ".")) || 0),
     };
     const { error } = existing
       ? await supabase.from("items").update(payload).eq("id", existing.id)
@@ -180,19 +176,6 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
             <Label>Contagem</Label>
             <Input type="number" min={0} value={contagem} onChange={e => setContagem(parseInt(e.target.value) || 0)} />
           </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Preço aproximado por fardo (R$)</Label>
-          <Input
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            value={preco}
-            onChange={e => setPreco(e.target.value)}
-            placeholder="0,00"
-          />
-          <p className="text-xs text-muted-foreground">Usado para estimar o custo da lista de compras. Opcional.</p>
         </div>
         <DialogFooter>
           <Button type="submit" className="w-full">Salvar</Button>

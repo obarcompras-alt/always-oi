@@ -1,1 +1,0 @@
-ALTER TABLE public.items ADD COLUMN IF NOT EXISTS preco_fardo numeric(10,2) NOT NULL DEFAULT 0;
