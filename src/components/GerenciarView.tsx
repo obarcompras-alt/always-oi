@@ -79,8 +79,10 @@ function ItensAdmin() {
                   <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
                     {sup && <Badge variant="outline" className={cn("border-0", supplierBadgeClass(sup.cor))}>{sup.nome}</Badge>}
                     <span>mín {i.estoque_minimo}</span>
-                    <span>fardo {i.unidades_por_fardo}</span>
+                    {i.unidades_por_fardo > 1 && <span>{i.unidades_por_fardo}/fardo</span>}
+                    {i.preco_unidade > 0 && <span>R$ {Number(i.preco_unidade).toFixed(2)}/un</span>}
                   </div>
+
                 </div>
                 <div className="flex gap-1 shrink-0">
                   <Button size="icon" variant="ghost" onClick={() => { setEditing(i); setOpen(true); }}>
@@ -116,14 +118,14 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
   const [supplierId, setSupplierId] = useState<string>(existing?.supplier_id ?? "none");
   const [minimo, setMinimo] = useState(existing?.estoque_minimo ?? 0);
   const [fardo, setFardo] = useState(existing?.unidades_por_fardo ?? 1);
-  const [contagem, setContagem] = useState(existing?.contagem_atual ?? 0);
+  const [preco, setPreco] = useState<string>(existing?.preco_unidade != null ? String(existing.preco_unidade) : "0");
 
   useEffect(() => {
     setNome(existing?.nome ?? "");
     setSupplierId(existing?.supplier_id ?? "none");
     setMinimo(existing?.estoque_minimo ?? 0);
     setFardo(existing?.unidades_por_fardo ?? 1);
-    setContagem(existing?.contagem_atual ?? 0);
+    setPreco(existing?.preco_unidade != null ? String(existing.preco_unidade) : "0");
   }, [existing]);
 
   async function save(e: React.FormEvent) {
@@ -133,7 +135,7 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
       supplier_id: supplierId === "none" ? null : supplierId,
       estoque_minimo: minimo,
       unidades_por_fardo: Math.max(1, fardo),
-      contagem_atual: contagem,
+      preco_unidade: Math.max(0, parseFloat(preco.replace(",", ".")) || 0),
     };
     const { error } = existing
       ? await supabase.from("items").update(payload).eq("id", existing.id)
@@ -163,19 +165,31 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <Label>Mínimo</Label>
+            <Label>Estoque mínimo (un)</Label>
             <Input type="number" min={0} value={minimo} onChange={e => setMinimo(parseInt(e.target.value) || 0)} />
           </div>
           <div className="space-y-1.5">
-            <Label>Un/fardo</Label>
+            <Label>Unidades por fardo</Label>
             <Input type="number" min={1} value={fardo} onChange={e => setFardo(parseInt(e.target.value) || 1)} />
           </div>
-          <div className="space-y-1.5">
-            <Label>Contagem</Label>
-            <Input type="number" min={0} value={contagem} onChange={e => setContagem(parseInt(e.target.value) || 0)} />
-          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Deixe <b>Unidades por fardo = 1</b> se o item é vendido só por unidade/kg (não terá contagem de fardo).
+        </p>
+        <div className="space-y-1.5">
+          <Label>Preço aproximado por unidade (R$)</Label>
+          <Input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            value={preco}
+            onChange={e => setPreco(e.target.value)}
+            placeholder="0,00"
+          />
+          <p className="text-xs text-muted-foreground">Usado para estimar o custo da lista. Opcional.</p>
         </div>
         <DialogFooter>
           <Button type="submit" className="w-full">Salvar</Button>
@@ -184,6 +198,7 @@ function ItemForm({ existing, suppliers, onSaved }: { existing: Item | null; sup
     </DialogContent>
   );
 }
+
 
 function SuppliersAdmin() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
