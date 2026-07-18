@@ -35,8 +35,8 @@ function read(): Sessao | null {
 
 export function setSessao(s: Sessao | null) {
   if (typeof window === "undefined") return;
-  if (s) localStorage.setItem(KEY, JSON.stringify(s));
-  else localStorage.removeItem(KEY);
+  if (s) { localStorage.setItem(KEY, JSON.stringify(s)); } else { localStorage.removeItem(KEY); }
+  cachedRaw = null; // force re-read on next snapshot
   listeners.forEach(l => l());
 }
 
