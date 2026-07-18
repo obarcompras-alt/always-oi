@@ -232,7 +232,92 @@ export function ContagemView() {
           );
         })}
       </div>
+
+      <QuickAddFab suppliers={suppliers} />
     </div>
+  );
+}
+
+function QuickAddFab({ suppliers }: { suppliers: Supplier[] }) {
+  const [open, setOpen] = useState(false);
+  const [nome, setNome] = useState("");
+  const [supplierId, setSupplierId] = useState<string>("none");
+  const [minimo, setMinimo] = useState("0");
+  const [fardo, setFardo] = useState("1");
+  const [preco, setPreco] = useState("0");
+  const [saving, setSaving] = useState(false);
+
+  function reset() {
+    setNome(""); setSupplierId("none"); setMinimo("0"); setFardo("1"); setPreco("0");
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim()) return;
+    setSaving(true);
+    const { error } = await supabase.from("items").insert({
+      nome: nome.trim(),
+      supplier_id: supplierId === "none" ? null : supplierId,
+      estoque_minimo: parseInt(minimo) || 0,
+      unidades_por_fardo: Math.max(1, parseInt(fardo) || 1),
+      preco_unidade: Math.max(0, parseFloat(preco.replace(",", ".")) || 0),
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Item criado");
+    reset();
+    setOpen(false);
+  }
+
+  return (
+    <>
+      <Button
+        size="icon"
+        onClick={() => setOpen(true)}
+        className="fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-40"
+        aria-label="Cadastrar novo item"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+      <Dialog open={open} onOpenChange={o => { setOpen(o); if (!o) reset(); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Novo item</DialogTitle></DialogHeader>
+          <form onSubmit={save} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Nome</Label>
+              <Input autoFocus value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Heineken 600ml" required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Fornecedor</Label>
+              <Select value={supplierId} onValueChange={setSupplierId}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem fornecedor</SelectItem>
+                  {suppliers.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Mínimo</Label>
+                <Input type="number" inputMode="numeric" min={0} value={minimo} onFocus={e => e.target.select()} onChange={e => setMinimo(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Un/fardo</Label>
+                <Input type="number" inputMode="numeric" min={1} value={fardo} onFocus={e => e.target.select()} onChange={e => setFardo(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">R$/un</Label>
+                <Input type="number" inputMode="decimal" min={0} step="0.01" value={preco} onFocus={e => e.target.select()} onChange={e => setPreco(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="w-full h-11" disabled={saving}>Salvar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
