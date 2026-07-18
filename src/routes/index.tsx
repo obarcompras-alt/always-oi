@@ -1,25 +1,28 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AREAS, type Area, type Tipo, setSessao, useSessao } from "@/lib/sessao";
-import { Beer, ArrowRight } from "lucide-react";
+import { Beer, ArrowRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { signOut, useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/")({ component: Welcome });
 
 function Welcome() {
   const navigate = useNavigate();
+  const { user, nome, loading } = useAuth();
   const sessao = useSessao();
-  const [nome, setNome] = useState("");
   const [area, setArea] = useState<Area>("Estoque");
   const [tipo, setTipo] = useState<Tipo>("inicio");
 
   useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
     if (sessao) {
-      setNome(sessao.nome);
       setArea(sessao.area);
       setTipo(sessao.tipo);
     }
@@ -27,30 +30,38 @@ function Welcome() {
 
   function entrar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return;
-    setSessao({ nome: nome.trim(), area, tipo });
+    if (!nome) return;
+    setSessao({ nome, area, tipo });
     navigate({ to: "/contagem" });
   }
+
+  async function sair() {
+    await signOut();
+    setSessao(null);
+    navigate({ to: "/auth" });
+  }
+
+  if (loading || !user) return null;
 
   return (
     <div className="min-h-screen grid place-items-center p-4">
       <Card className="w-full max-w-md p-6 space-y-5">
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-primary/15 grid place-items-center text-primary">
-            <Beer className="h-6 w-6" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-11 w-11 rounded-xl bg-primary/15 grid place-items-center text-primary shrink-0">
+              <Beer className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-bold text-lg leading-tight truncate">Olá, {nome}</div>
+              <div className="text-xs text-muted-foreground">O que vai contar hoje?</div>
+            </div>
           </div>
-          <div>
-            <div className="font-bold text-lg leading-tight">Contagem Bar</div>
-            <div className="text-xs text-muted-foreground">Quem é você e o que vai contar?</div>
-          </div>
+          <Button size="sm" variant="ghost" onClick={sair} className="h-8 px-2 text-xs shrink-0">
+            <LogOut className="h-3.5 w-3.5 mr-1" /> Sair
+          </Button>
         </div>
 
         <form onSubmit={entrar} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Seu nome</Label>
-            <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: João" className="h-11" required />
-          </div>
-
           <div className="space-y-1.5">
             <Label>Área</Label>
             <div className="grid grid-cols-1 gap-2">
