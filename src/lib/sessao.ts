@@ -13,15 +13,22 @@ export interface Sessao {
 const KEY = "contagem_bar_sessao";
 const listeners = new Set<() => void>();
 
+let cached: Sessao | null = null;
+let cachedRaw: string | null = null;
+
 function read(): Sessao | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
+    if (raw === cachedRaw) return cached;
+    cachedRaw = raw;
+    if (!raw) { cached = null; return null; }
     const parsed = JSON.parse(raw);
-    if (!parsed?.nome || !parsed?.area || !parsed?.tipo) return null;
-    return parsed as Sessao;
+    if (!parsed?.nome || !parsed?.area || !parsed?.tipo) { cached = null; return null; }
+    cached = parsed as Sessao;
+    return cached;
   } catch {
+    cached = null;
     return null;
   }
 }
