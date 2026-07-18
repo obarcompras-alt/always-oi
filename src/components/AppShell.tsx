@@ -1,14 +1,20 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Beer, ListChecks, ShoppingCart, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSessao, setSessao } from "@/lib/sessao";
+import { signOut, useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const sessao = useSessao();
+  const { user, nome, loading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
 
   const tabs = [
     { to: "/contagem", label: "Contagem", icon: ListChecks },
@@ -21,6 +27,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/" });
   }
 
+  async function sair() {
+    await signOut();
+    setSessao(null);
+    navigate({ to: "/auth" });
+  }
+
+  if (loading || !user) return null;
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
@@ -31,32 +45,44 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-sm leading-tight truncate">Contagem Bar</div>
-              {sessao && (
+              {sessao ? (
                 <div className="text-[10px] text-muted-foreground truncate">
                   {sessao.nome} · {sessao.area} · {sessao.tipo === "inicio" ? "início" : "final"}
                 </div>
+              ) : (
+                <div className="text-[10px] text-muted-foreground truncate">{nome}</div>
               )}
             </div>
           </div>
-          {sessao && (
-            <Button size="sm" variant="ghost" onClick={trocar} className="shrink-0 h-8 px-2 text-xs">
-              <LogOut className="h-3.5 w-3.5 mr-1" /> Trocar
+          <div className="flex items-center gap-1 shrink-0">
+            {sessao && (
+              <Button size="sm" variant="ghost" onClick={trocar} className="h-8 px-2 text-xs">
+                Trocar área
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" onClick={sair} className="h-8 px-2 text-xs">
+              <LogOut className="h-3.5 w-3.5" />
             </Button>
-          )}
+          </div>
         </div>
       </header>
-      <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-4 pb-24">
-        {children}
-      </main>
-      <nav className="fixed bottom-0 inset-x-0 border-t bg-background/95 backdrop-blur z-20 pb-[env(safe-area-inset-bottom)]">
+
+      <main className="flex-1 mx-auto max-w-3xl w-full p-4 pb-24">{children}</main>
+
+      <nav className="fixed bottom-0 inset-x-0 border-t bg-background/95 backdrop-blur z-20">
         <div className="mx-auto max-w-3xl grid grid-cols-3">
           {tabs.map(t => {
-            const active = pathname === t.to;
+            const active = pathname.startsWith(t.to);
             const Icon = t.icon;
             return (
-              <Link key={t.to} to={t.to}
-                className={cn("flex flex-col items-center gap-1 py-3 text-xs transition-colors",
-                  active ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
+              <Link
+                key={t.to}
+                to={t.to}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-0.5 h-16 text-xs transition-colors",
+                  active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
                 <Icon className="h-5 w-5" />
                 {t.label}
               </Link>
