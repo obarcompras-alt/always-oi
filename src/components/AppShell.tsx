@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { ReactNode, useEffect } from "react";
-import { Beer, ListChecks, ShoppingCart, Settings, LogOut } from "lucide-react";
+import { Beer, ListChecks, ShoppingCart, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSessao, setSessao } from "@/lib/sessao";
 import { signOut, useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [user, loading, navigate]);
 
   const tabs = [
+    { to: "/dashboard", label: "Estoque", icon: LayoutDashboard },
     { to: "/contagem", label: "Contagem", icon: ListChecks },
     { to: "/compras", label: "Compras", icon: ShoppingCart },
     { to: "/gerenciar", label: "Gerenciar", icon: Settings },
@@ -70,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 mx-auto max-w-3xl w-full p-4 pb-24">{children}</main>
 
       <nav className="fixed bottom-0 inset-x-0 border-t bg-background/95 backdrop-blur z-20">
-        <div className="mx-auto max-w-3xl grid grid-cols-3">
+        <div className="mx-auto max-w-3xl grid grid-cols-4">
           {tabs.map(t => {
             const active = pathname.startsWith(t.to);
             const Icon = t.icon;
