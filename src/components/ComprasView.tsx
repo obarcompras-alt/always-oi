@@ -249,26 +249,32 @@ export function ComprasView() {
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="secondary" className="h-9 w-9 shrink-0" onClick={() => setQty(l.item.id, l.qty - 1)}>
+                      <Button size="icon" variant="secondary" className="h-10 w-10 shrink-0" onClick={() => setQty(l.item.id, l.qty - upf)}>
                         <Minus className="h-4 w-4" />
                       </Button>
+                      <div className="flex-1 text-center">
+                        <div className="text-lg font-bold text-primary leading-none">
+                          {upf > 1 ? `${l.fardos} fardo${l.fardos>1?"s":""}` : `${l.qty} un`}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          {upf > 1 && <>{l.qty} un · </>}
+                          {l.custo > 0 && <>~{brl(l.custo)}</>}
+                        </div>
+                      </div>
+                      <Button size="icon" variant="secondary" className="h-10 w-10 shrink-0" onClick={() => setQty(l.item.id, l.qty + upf)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">Qtd exata (un):</span>
                       <Input
                         type="number"
                         inputMode="numeric"
                         value={l.qty}
                         onFocus={e => e.target.select()}
                         onChange={e => setQty(l.item.id, parseInt(e.target.value) || 0)}
-                        className="h-9 text-center font-bold flex-1"
+                        className="h-8 text-center text-sm flex-1"
                       />
-                      <Button size="icon" variant="secondary" className="h-9 w-9 shrink-0" onClick={() => setQty(l.item.id, l.qty + 1)}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <div className="w-20 text-right shrink-0">
-                        <div className="text-xs font-bold text-primary">
-                          {upf > 1 ? `${l.fardos} fardo${l.fardos>1?"s":""}` : `${l.qty} un`}
-                        </div>
-                        {l.custo > 0 && <div className="text-[10px] text-muted-foreground">~{brl(l.custo)}</div>}
-                      </div>
                     </div>
                     {editado && (
                       <button type="button" onClick={() => clearQty(l.item.id)} className="text-[10px] text-muted-foreground hover:text-foreground underline">

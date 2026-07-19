@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as GerenciarRouteImport } from './routes/gerenciar'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContagemRouteImport } from './routes/contagem'
 import { Route as ComprasRouteImport } from './routes/compras'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const GerenciarRoute = GerenciarRouteImport.update({
   id: '/gerenciar',
   path: '/gerenciar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContagemRoute = ContagemRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/contagem': typeof ContagemRoute
+  '/dashboard': typeof DashboardRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/contagem': typeof ContagemRoute
+  '/dashboard': typeof DashboardRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,28 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/compras': typeof ComprasRoute
   '/contagem': typeof ContagemRoute
+  '/dashboard': typeof DashboardRoute
   '/gerenciar': typeof GerenciarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/compras' | '/contagem' | '/gerenciar'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/compras'
+    | '/contagem'
+    | '/dashboard'
+    | '/gerenciar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/compras' | '/contagem' | '/gerenciar'
-  id: '__root__' | '/' | '/auth' | '/compras' | '/contagem' | '/gerenciar'
+  to: '/' | '/auth' | '/compras' | '/contagem' | '/dashboard' | '/gerenciar'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/compras'
+    | '/contagem'
+    | '/dashboard'
+    | '/gerenciar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +98,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ComprasRoute: typeof ComprasRoute
   ContagemRoute: typeof ContagemRoute
+  DashboardRoute: typeof DashboardRoute
   GerenciarRoute: typeof GerenciarRoute
 }
 
@@ -86,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/gerenciar'
       fullPath: '/gerenciar'
       preLoaderRoute: typeof GerenciarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contagem': {
@@ -124,6 +154,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ComprasRoute: ComprasRoute,
   ContagemRoute: ContagemRoute,
+  DashboardRoute: DashboardRoute,
   GerenciarRoute: GerenciarRoute,
 }
 export const routeTree = rootRouteImport
