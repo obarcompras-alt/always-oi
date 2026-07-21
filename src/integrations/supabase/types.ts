@@ -14,9 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
+      ciclos: {
+        Row: {
+          created_at: string
+          fim: string
+          id: string
+          inicio: string
+          status: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          fim: string
+          id?: string
+          inicio: string
+          status?: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          fim?: string
+          id?: string
+          inicio?: string
+          status?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
+      compras_historico: {
+        Row: {
+          ciclo_id: string | null
+          created_at: string
+          created_by: string | null
+          data: string
+          fornecedor_id: string | null
+          id: string
+          item_id: string
+          preco_unitario: number
+          quantidade: number
+        }
+        Insert: {
+          ciclo_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          fornecedor_id?: string | null
+          id?: string
+          item_id: string
+          preco_unitario?: number
+          quantidade?: number
+        }
+        Update: {
+          ciclo_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          fornecedor_id?: string | null
+          id?: string
+          item_id?: string
+          preco_unitario?: number
+          quantidade?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compras_historico_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_historico_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_historico_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      config: {
+        Row: {
+          dia_virada: number
+          frequencia_ciclo: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          dia_virada?: number
+          frequencia_ciclo?: string
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          dia_virada?: number
+          frequencia_ciclo?: string
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contagens: {
         Row: {
           area: string
+          ciclo_id: string
           contador_nome: string | null
           fardos: number
           id: string
@@ -27,6 +134,7 @@ export type Database = {
         }
         Insert: {
           area: string
+          ciclo_id: string
           contador_nome?: string | null
           fardos?: number
           id?: string
@@ -37,6 +145,7 @@ export type Database = {
         }
         Update: {
           area?: string
+          ciclo_id?: string
           contador_nome?: string | null
           fardos?: number
           id?: string
@@ -46,6 +155,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contagens_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contagens_item_id_fkey"
             columns: ["item_id"]
@@ -63,6 +179,7 @@ export type Database = {
           nome: string
           preco_unidade: number
           supplier_id: string | null
+          unidade_id: string
           unidades_por_fardo: number
           updated_at: string
           updated_by: string | null
@@ -74,6 +191,7 @@ export type Database = {
           nome: string
           preco_unidade?: number
           supplier_id?: string | null
+          unidade_id: string
           unidades_por_fardo?: number
           updated_at?: string
           updated_by?: string | null
@@ -85,6 +203,7 @@ export type Database = {
           nome?: string
           preco_unidade?: number
           supplier_id?: string | null
+          unidade_id?: string
           unidades_por_fardo?: number
           updated_at?: string
           updated_by?: string | null
@@ -95,6 +214,109 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "items_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades_medida"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listas_compras: {
+        Row: {
+          ciclo_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          titulo: string | null
+        }
+        Insert: {
+          ciclo_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          titulo?: string | null
+        }
+        Update: {
+          ciclo_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          titulo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listas_compras_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listas_compras_itens: {
+        Row: {
+          fornecedor_id: string | null
+          id: string
+          item_id: string
+          lista_id: string
+          observacao: string | null
+          ordem: number
+          preco_estimado: number
+          quantidade: number
+          responsavel_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          fornecedor_id?: string | null
+          id?: string
+          item_id: string
+          lista_id: string
+          observacao?: string | null
+          ordem?: number
+          preco_estimado?: number
+          quantidade?: number
+          responsavel_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          fornecedor_id?: string | null
+          id?: string
+          item_id?: string
+          lista_id?: string
+          observacao?: string | null
+          ordem?: number
+          preco_estimado?: number
+          quantidade?: number
+          responsavel_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listas_compras_itens_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listas_compras_itens_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listas_compras_itens_lista_id_fkey"
+            columns: ["lista_id"]
+            isOneToOne: false
+            referencedRelation: "listas_compras"
             referencedColumns: ["id"]
           },
         ]
@@ -138,6 +360,27 @@ export type Database = {
         }
         Relationships: []
       }
+      unidades_medida: {
+        Row: {
+          abreviacao: string
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          abreviacao: string
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          abreviacao?: string
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -161,6 +404,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ciclo_atual: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -168,6 +412,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      preco_estimado: { Args: { _item_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "staff"

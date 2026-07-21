@@ -38,6 +38,8 @@ export function ContagemView() {
   const [items, setItems] = useState<Item[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [contagens, setContagens] = useState<Contagem[]>([]);
+  const [cicloId, setCicloId] = useState<string | null>(null);
+  const [unidadeUnId, setUnidadeUnId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +53,15 @@ export function ContagemView() {
       supabase.from("items").select("*").order("nome"),
       supabase.from("suppliers").select("*").order("nome"),
       supabase.from("contagens").select("*"),
-    ]).then(([it, sp, ct]) => {
+      supabase.from("ciclos").select("id").eq("status", "aberto").limit(1).maybeSingle(),
+      supabase.from("unidades_medida").select("id").eq("abreviacao", "un").maybeSingle(),
+    ]).then(([it, sp, ct, ci, un]) => {
       if (!mounted) return;
       setItems(it.data ?? []);
       setSuppliers(sp.data ?? []);
       setContagens(ct.data ?? []);
+      setCicloId(ci.data?.id ?? null);
+      setUnidadeUnId(un.data?.id ?? null);
       setLoading(false);
     });
 
@@ -75,6 +81,7 @@ export function ContagemView() {
       .subscribe();
     return () => { mounted = false; supabase.removeChannel(ch); };
   }, []);
+
 
   const supplierById = useMemo(() => new Map(suppliers.map(s => [s.id, s])), [suppliers]);
 
@@ -107,12 +114,13 @@ export function ContagemView() {
   }, [items, q]);
 
   async function upsert(item: Item, next: { unidades: number; fardos: number }) {
-    if (!sessao) return;
+    if (!sessao || !cicloId) return;
     const existing = byItemHere.get(item.id);
     const payload = {
       tipo: sessao.tipo,
       area: sessao.area,
       item_id: item.id,
+      ciclo_id: cicloId,
       unidades: Math.max(0, Math.floor(next.unidades)),
       fardos: Math.max(0, Math.floor(next.fardos)),
       contador_nome: sessao.nome,
@@ -122,9 +130,10 @@ export function ContagemView() {
       if (idx === -1) return [...curr, { ...payload, id: "tmp-" + item.id, updated_at: new Date().toISOString() } as Contagem];
       const copy = [...curr]; copy[idx] = { ...copy[idx], ...payload }; return copy;
     });
-    const { error } = await supabase.from("contagens").upsert(payload, { onConflict: "tipo,area,item_id" });
+    const { error } = await supabase.from("contagens").upsert(payload, { onConflict: "ciclo_id,tipo,area,item_id" });
     if (error) toast.error("Erro ao salvar: " + error.message);
   }
+
 
   if (!sessao) return null;
   if (loading) return <div className="text-center text-muted-foreground py-12">Carregando...</div>;
@@ -231,7 +240,7 @@ export function ContagemView() {
         })}
       </div>
 
-      <QuickAddFab suppliers={suppliers} />
+      <QuickAddFab suppliers={suppliers} unidadeUnId={unidadeUnId} />
     </div>
   );
 }
@@ -308,7 +317,7 @@ function FardoBlock({ currentFardos, upf, onApply, onSetTotal }: { currentFardos
   );
 }
 
-function QuickAddFab({ suppliers }: { suppliers: Supplier[] }) {
+function QuickAddFab({ suppliers, unidadeUnId }: { suppliers: Supplier[]; unidadeUnId: string | null }) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [supplierId, setSupplierId] = useState<string>("none");
@@ -323,15 +332,17 @@ function QuickAddFab({ suppliers }: { suppliers: Supplier[] }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return;
+    if (!nome.trim() || !unidadeUnId) return;
     setSaving(true);
     const { error } = await supabase.from("items").insert({
       nome: nome.trim(),
       supplier_id: supplierId === "none" ? null : supplierId,
-      estoque_minimo: parseInt(minimo) || 0,
-      unidades_por_fardo: Math.max(1, parseInt(fardo) || 1),
+      estoque_minimo: parseFloat(minimo.replace(",", ".")) || 0,
+      unidades_por_fardo: Math.max(1, parseFloat(fardo.replace(",", ".")) || 1),
       preco_unidade: Math.max(0, parseFloat(preco.replace(",", ".")) || 0),
+      unidade_id: unidadeUnId,
     });
+
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Item criado");
