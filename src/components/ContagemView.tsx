@@ -317,7 +317,7 @@ function FardoBlock({ currentFardos, upf, onApply, onSetTotal }: { currentFardos
   );
 }
 
-function QuickAddFab({ suppliers }: { suppliers: Supplier[] }) {
+function QuickAddFab({ suppliers, unidadeUnId }: { suppliers: Supplier[]; unidadeUnId: string | null }) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [supplierId, setSupplierId] = useState<string>("none");
@@ -332,15 +332,17 @@ function QuickAddFab({ suppliers }: { suppliers: Supplier[] }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return;
+    if (!nome.trim() || !unidadeUnId) return;
     setSaving(true);
     const { error } = await supabase.from("items").insert({
       nome: nome.trim(),
       supplier_id: supplierId === "none" ? null : supplierId,
-      estoque_minimo: parseInt(minimo) || 0,
-      unidades_por_fardo: Math.max(1, parseInt(fardo) || 1),
+      estoque_minimo: parseFloat(minimo.replace(",", ".")) || 0,
+      unidades_por_fardo: Math.max(1, parseFloat(fardo.replace(",", ".")) || 1),
       preco_unidade: Math.max(0, parseFloat(preco.replace(",", ".")) || 0),
+      unidade_id: unidadeUnId,
     });
+
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Item criado");
