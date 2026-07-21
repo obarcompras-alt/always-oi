@@ -240,7 +240,7 @@ export function ContagemView() {
         })}
       </div>
 
-      <QuickAddFab suppliers={suppliers} />
+      <QuickAddFab suppliers={suppliers} unidadeUnId={unidadeUnId} />
     </div>
   );
 }
