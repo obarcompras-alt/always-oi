@@ -38,6 +38,8 @@ export function ContagemView() {
   const [items, setItems] = useState<Item[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [contagens, setContagens] = useState<Contagem[]>([]);
+  const [cicloId, setCicloId] = useState<string | null>(null);
+  const [unidadeUnId, setUnidadeUnId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +53,15 @@ export function ContagemView() {
       supabase.from("items").select("*").order("nome"),
       supabase.from("suppliers").select("*").order("nome"),
       supabase.from("contagens").select("*"),
-    ]).then(([it, sp, ct]) => {
+      supabase.from("ciclos").select("id").eq("status", "aberto").limit(1).maybeSingle(),
+      supabase.from("unidades_medida").select("id").eq("abreviacao", "un").maybeSingle(),
+    ]).then(([it, sp, ct, ci, un]) => {
       if (!mounted) return;
       setItems(it.data ?? []);
       setSuppliers(sp.data ?? []);
       setContagens(ct.data ?? []);
+      setCicloId(ci.data?.id ?? null);
+      setUnidadeUnId(un.data?.id ?? null);
       setLoading(false);
     });
 
@@ -75,6 +81,7 @@ export function ContagemView() {
       .subscribe();
     return () => { mounted = false; supabase.removeChannel(ch); };
   }, []);
+
 
   const supplierById = useMemo(() => new Map(suppliers.map(s => [s.id, s])), [suppliers]);
 
