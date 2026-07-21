@@ -114,12 +114,13 @@ export function ContagemView() {
   }, [items, q]);
 
   async function upsert(item: Item, next: { unidades: number; fardos: number }) {
-    if (!sessao) return;
+    if (!sessao || !cicloId) return;
     const existing = byItemHere.get(item.id);
     const payload = {
       tipo: sessao.tipo,
       area: sessao.area,
       item_id: item.id,
+      ciclo_id: cicloId,
       unidades: Math.max(0, Math.floor(next.unidades)),
       fardos: Math.max(0, Math.floor(next.fardos)),
       contador_nome: sessao.nome,
@@ -129,9 +130,10 @@ export function ContagemView() {
       if (idx === -1) return [...curr, { ...payload, id: "tmp-" + item.id, updated_at: new Date().toISOString() } as Contagem];
       const copy = [...curr]; copy[idx] = { ...copy[idx], ...payload }; return copy;
     });
-    const { error } = await supabase.from("contagens").upsert(payload, { onConflict: "tipo,area,item_id" });
+    const { error } = await supabase.from("contagens").upsert(payload, { onConflict: "ciclo_id,tipo,area,item_id" });
     if (error) toast.error("Erro ao salvar: " + error.message);
   }
+
 
   if (!sessao) return null;
   if (loading) return <div className="text-center text-muted-foreground py-12">Carregando...</div>;
